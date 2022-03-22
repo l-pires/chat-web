@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Joi from 'joi';
 
+import Header from './Header';
 import Alert from './Alert';
 
+const AUTH_URL = 'http://localhost:5050/user/';
 const SIGNUP_URL = 'http://localhost:5050/user/signup';
 
 const initialUser = {
@@ -18,7 +20,27 @@ const schema = Joi.object().keys({
 function Signup() {
   const [user, setUser] = useState(initialUser);
   const [alert, setAlert] = useState(false);
-  return (
+  useEffect(() => {
+    fetch(AUTH_URL, {
+      headers: {
+        authorization: `Bearer ${localStorage.token}`,
+      },
+    }).then(response => response.json())
+      .then(result => {
+        if(result.user) {
+          window.location.assign('/chat');
+        } else {
+          localStorage.removeItem('token');
+        }
+      });
+  }, []);
+  return (<>
+    <Header>
+      <button type="button" className="login btn btn-secondary mx-1" onClick={
+        () => window.location.assign('/login')
+      }>Entrar</button>
+    </Header>
+    
     <main className="container-fluid">
       <div className='form'>
         <Alert error={alert} />
@@ -81,7 +103,7 @@ function Signup() {
         >Cadastrar</button>
       </div>
     </main>
-  );
+    </>);
 }
 
 export default Signup;

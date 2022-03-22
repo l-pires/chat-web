@@ -34,6 +34,12 @@ function sendToken(user, res, next) {
   });
 }
 
+router.get('/', (req, res) => {
+  res.json({
+    user: req.user,
+  });
+});
+
 router.post('/signup', (req, res, next) => {
   const result = schema.validate(req.body);
   if(result.error) {

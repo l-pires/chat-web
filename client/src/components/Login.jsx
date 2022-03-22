@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import Header from './Header';
 import Alert from './Alert';
 
+const AUTH_URL = 'http://localhost:5050/user/';
 const LOGIN_URL = 'http://localhost:5050/user/login';
 
 const initialUser = {
@@ -12,7 +14,27 @@ const initialUser = {
 function Login() {
   const [user, setUser] = useState(initialUser);
   const [alert, setAlert] = useState(false);
-  return (
+  useEffect(() => {
+    fetch(AUTH_URL, {
+      headers: {
+        authorization: `Bearer ${localStorage.token}`,
+      },
+    }).then(response => response.json())
+      .then(result => {
+        if(result.user) {
+          window.location.assign('/chat');
+        } else {
+          localStorage.removeItem('token');
+        }
+      });
+  }, []);
+  return (<>
+    <Header>
+      <button type="button" className="signup btn btn-primary mx-1" onClick={
+        () => window.location.assign('/signup')
+      }>Cadastrar</button>
+    </Header>
+
     <main className="container-fluid">
       <div className='form'>
         <Alert error={alert} />
@@ -74,7 +96,7 @@ function Login() {
         >Entrar</button>
       </div>
     </main>
-  );
+  </>);
 }
 
 export default Login;
