@@ -3,6 +3,8 @@ const volleyball = require('volleyball');
 
 const user = require('./user');
 
+require('dotenv').config();
+
 const app = express();
 
 app.use(express.json());

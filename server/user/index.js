@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const Joi = require('joi');
+const jwt = require('jsonwebtoken');
 
 const db = require('./../db/connection');
 const users = db.get('users');
@@ -12,6 +13,26 @@ const schema = Joi.object().keys({
   username: Joi.string().trim().min(2).required(),
   password: Joi.string().trim().min(8).required(),
 });
+
+function loginError(res, next) {
+  res.status(422);
+  next(new Error('Não foi possível efetuar o login.'));
+}
+
+function sendToken(user, res, next) {
+  jwt.sign({
+    _id: user._id,
+    username: user.username,
+  }, process.env.TOKEN_SECRET, {
+    expiresIn: '1d',
+  }, (err, token) => {
+    if(err) {
+      loginError(res, next);
+    } else {
+      res.json({ token });
+    }
+  });
+}
 
 router.post('/signup', (req, res, next) => {
   const result = schema.validate(req.body);
@@ -32,15 +53,31 @@ router.post('/signup', (req, res, next) => {
             username: req.body.username,
             password: hashedPassword,
           }).then(inserted => {
-            res.json({
-              _id: inserted._id,
-              username: inserted.username,
-            });
+            sendToken(inserted, res, next);
           });
         });
       }
     });
   }
+});
+
+router.post('/login', (req, res, next) => {
+  users.findOne({
+    username: req.body.username
+  }).then(user => {
+    if(user) {
+      bcrypt.compare(req.body.password, user.password)
+        .then(result => {
+          if(result) {
+            sendToken(user, res, next);
+          } else {
+            loginError(res, next);
+          }
+        });
+    } else {
+      loginError(res, next);
+    }
+  });
 });
 
 module.exports = router;
