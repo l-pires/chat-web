@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const volleyball = require('volleyball');
 
 const user = require('./user');
@@ -8,6 +9,9 @@ require('dotenv').config();
 const app = express();
 
 app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:3000',
+}));
 app.use(volleyball);
 
 app.get('/', (req, res) => {
