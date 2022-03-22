@@ -1,8 +1,12 @@
 const express = require('express');
+const volleyball = require('volleyball');
+
+const user = require('./user');
 
 const app = express();
 
 app.use(express.json());
+app.use(volleyball);
 
 app.get('/', (req, res) => {
   res.json({
@@ -11,9 +15,11 @@ app.get('/', (req, res) => {
   });
 });
 
+app.use('/user', user);
+
 app.use((req, res, next) => {
   res.status(404);
-  next(new Error(`Not Found: ${req.originalUrl}.`));
+  next(new Error(`Não encontrado: ${req.originalUrl}.`));
 });
 
 app.use((err, req, res, next) => {
