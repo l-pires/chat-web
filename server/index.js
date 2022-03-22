@@ -3,6 +3,7 @@ const cors = require('cors');
 const volleyball = require('volleyball');
 
 const user = require('./user');
+const chat = require('./chat');
 const middlewares = require('./user/middlewares');
 
 require('dotenv').config();
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/user', user);
+app.use('/chat', middlewares.isLoggedIn, chat);
 
 app.use((req, res, next) => {
   res.status(404);

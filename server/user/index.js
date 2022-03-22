@@ -58,6 +58,7 @@ router.post('/signup', (req, res, next) => {
           users.insert({
             username: req.body.username,
             password: hashedPassword,
+            chats: [],
           }).then(inserted => {
             sendToken(inserted, res, next);
           });
